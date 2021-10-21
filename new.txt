@@ -1,0 +1,98 @@
+Install filebeat
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+sudo apt update
+sudo apt-get install apt-transport-https
+echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-7.x.list
+sudo apt update
+sudo apt install filebeat
+sudo filebeat modules enable system
+
+sudo rm -r filebeat.yml
+remove old filebeat.yml and configure new filebeat.yml file which is given below. and put your elk ip there
+sudo nano /etc/filebeat/filebeat.yml
+
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /var/log/nginx/*.log
+
+output.logstash:
+  hosts: ["172.31.0.46:5044"]  
+
+sudo systemctl stop filebeat
+sudo systemctl start filebeat
+sudo systemctl enable filebeat
+sudo systemctl status filebeat
+
+Install Java
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+sudo apt update
+java -version
+sudo apt install default-jre -y
+java -version
+
+https://www.youtube.com/watch?v=PdkAmh2TfKo
+
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+sudo apt-get install apt-transport-https
+https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-7.x.list
+echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-7.x.list
+
+sudo apt update
+sudo apt install elasticsearch
+sudo nano /etc/elasticsearch/elasticsearch.yml
+in network section put localhost and uncomment http port
+sudo systemctl start elasticsearch
+sudo systemctl enable elasticsearch
+curl -X GET "localhost:9200"
+
+
+Kibana
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+sudo apt install kibana
+put elk privet ip in server host in kibana.yml file where there is server.host
+sudo nano /etc/kibana/kibana.yml
+
+sudo systemctl stop kibana
+sudo systemctl start kibana
+sudo systemctl enable kibana
+sudo systemctl status kibana
+
+
+Logstash
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+sudo apt install logstash
+sudo nano /etc/logstash/conf.d/02-beats-input.conf
+cd /etc/logstash/conf.d/
+sudo vi sample.conf
+
+input {
+  beats {
+    port => 5044
+  }
+}
+filter {
+   grok {
+       match => { "message" => "%{IPORHOST:remote_ip} - %{DATA:user_name} \[%{HTTPDATE:access_time}\] \"%{WORD:http_method} %{DATA:url} HTTP/%{NUMBER:http_version}\" %{NUMBER:response_code} %{NUMBER:body_sent_bytes} \"%{DATA:referrer}\" \"%{DATA:agent}\"" }
+}
+}
+output {
+   elasticsearch {
+    hosts => ["http://localhost:9200"]
+    index => "%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}"
+  }
+ }
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+sudo nano /etc/elasticsearch/elasticsearch.yml
+go network and uncomment network.host and http.port
+tail -f /var/log/syslog   === to check logs
+curl http://localhost:9200/_cat/indices?v   =====> to check filebeat is comming or not in elastisearch
+http://65.0.139.194:5601/
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
